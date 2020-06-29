@@ -1,3 +1,6 @@
+variable basename {}
 variable cron {}
-# ex) cron(0 0 * * ? *)
-
+variable cpu {}
+variable memory {}
+variable region {}
+variable image {}
