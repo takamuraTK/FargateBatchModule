@@ -38,8 +38,8 @@ resource "aws_ecs_task_definition" "fargate" {
   container_definitions    = data.template_file.batch_task_difinition.rendered
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  task_role_arn            = module.ecs_task_role.iam_role_arn
-  execution_role_arn       = module.ecs_task_execution_role.iam_role_arn
+  task_role_arn            = var.ecs_task_role_arn
+  execution_role_arn       = var.ecs_task_role_arn
 }
 
 data "template_file" "batch_task_difinition" {

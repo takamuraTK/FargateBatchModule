@@ -28,4 +28,5 @@ module "fargate" {
   memory = "512"
   image = "hello-world"
   region = var.region
+  ecs_task_role_arn = module.ecs_task_role.iam_role_arn
 }
