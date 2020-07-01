@@ -13,8 +13,8 @@ resource "aws_cloudwatch_event_rule" "fargate" {
 resource "aws_cloudwatch_event_target" "fargate" {
   target_id = "${var.basename}_fargate"
   rule = aws_cloudwatch_event_rule.fargate.name
-  role_arn = module.ecs_event_role.iam_role_arn
-  arn = aws_ecs_cluster.ecs_cluster.arn
+  role_arn = var.ecs_event_role_arn
+  arn = aws_ecs_cluster.fargate_cluster.arn
 
   ecs_target {
     launch_type = "FARGATE"
@@ -23,14 +23,18 @@ resource "aws_cloudwatch_event_target" "fargate" {
     task_definition_arn = aws_ecs_task_definition.fargate.arn
 
     network_configuration {
-      subnets = [aws_subnet.public_subnet.id]
-      security_groups = [aws_security_group.public_sg.id]
+      subnets = var.subnets
+      security_groups = var.security_groups
       assign_public_ip = true
     }
   }
 }
 
 # ECS Resources
+resource "aws_ecs_cluster" "fargate_cluster" {
+  name = var.basename
+}
+
 resource "aws_ecs_task_definition" "fargate" {
   family = "${var.basename}_fargate"
   cpu = var.cpu
