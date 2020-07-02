@@ -1,2 +1,2 @@
-region = "ap-northeast-1"
+region   = "ap-northeast-1"
 basename = "example_batch"

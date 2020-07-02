@@ -45,11 +45,11 @@ variable command {
 }
 
 variable security_groups {
-    type = list(string)
-    description = "タスクに設定されるセキュリティグループ"
+  type        = list(string)
+  description = "タスクに設定されるセキュリティグループ"
 }
 
 variable subnets {
-    type = list(string)
-    description = "タスクに設定されるサブネット"
+  type        = list(string)
+  description = "タスクに設定されるサブネット"
 }
