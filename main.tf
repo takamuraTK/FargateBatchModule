@@ -50,6 +50,7 @@ module "fargate" {
   region = var.region
   ecs_task_role_arn = module.ecs_task_role.iam_role_arn
   ecs_event_role_arn = module.ecs_event_role.iam_role_arn
+  command = ["/bin/date"]
   security_groups = [module.security_group.security_group_id]
   subnets = [aws_subnet.fargate_subnet.id]
 }
