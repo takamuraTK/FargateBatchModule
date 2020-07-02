@@ -16,6 +16,6 @@
         "environment": [
             {"name": "example", "value": "example"}
         ],
-        "command": ["sh", "/code/execute.sh"]
+        "command": "${command}"
     }
 ]

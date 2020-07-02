@@ -54,6 +54,7 @@ data "template_file" "batch_task_difinition" {
     region = var.region
     logs_group = "/ecs_scheduled_tasks/${var.basename}_fargate"
     log_bucket_name = aws_s3_bucket.log_bucket.bucket
+    command = var.command
   }
 }
 
