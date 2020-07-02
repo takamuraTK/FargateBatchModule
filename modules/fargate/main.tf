@@ -60,7 +60,7 @@ data "template_file" "batch_task_difinition" {
 
 # S3
 resource "aws_s3_bucket" "log_bucket" {
-  bucket = "${var.basename}-tesla-logs-bucket"
+  bucket = "${var.basename}-logs-bucket"
 
   lifecycle_rule {
     enabled = true
