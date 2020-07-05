@@ -25,11 +25,6 @@ variable region {
   description = "タスクログのリージョン"
 }
 
-variable image {
-  type        = string
-  description = "イメージURI"
-}
-
 variable ecs_task_role_arn {
   type        = string
   description = "タスクロール、アプリケーションが使用する権限を付与するIAMロール"
@@ -37,11 +32,6 @@ variable ecs_task_role_arn {
 variable ecs_event_role_arn {
   type        = string
   description = "CloudWatchイベントからECSを起動する権限を持つIAMロール"
-}
-
-variable command {
-  type        = list(string)
-  description = "タスク実行時のコマンド"
 }
 
 variable security_groups {
@@ -52,4 +42,9 @@ variable security_groups {
 variable subnets {
   type        = list(string)
   description = "タスクに設定されるサブネット"
+}
+
+variable container_definitions {
+  type = string
+  description = "JSON形式のタスク定義"
 }

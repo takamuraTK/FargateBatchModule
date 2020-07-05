@@ -39,23 +39,11 @@ resource "aws_ecs_task_definition" "fargate" {
   family                   = "${var.basename}_fargate"
   cpu                      = var.cpu
   memory                   = var.memory
-  container_definitions    = data.template_file.batch_task_difinition.rendered
+  container_definitions    = var.container_definitions
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   task_role_arn            = var.ecs_task_role_arn
   execution_role_arn       = var.ecs_task_role_arn
-}
-
-data "template_file" "batch_task_difinition" {
-  template = file("${path.module}/batch_container.json")
-  vars = {
-    container_name  = "${var.basename}_container"
-    image           = var.image
-    region          = var.region
-    logs_group      = "/ecs_scheduled_tasks/${var.basename}_fargate"
-    log_bucket_name = aws_s3_bucket.log_bucket.bucket
-    command         = var.command
-  }
 }
 
 # S3
