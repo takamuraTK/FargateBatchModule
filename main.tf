@@ -1,67 +1,68 @@
-module "ecs_event_role" {
-  source     = "./modules/iam_role"
-  name       = "${var.basename}_ecs_event_role"
-  identifier = "events.amazonaws.com"
-  policy     = data.aws_iam_policy.ecs_events_role_policy.policy
+# CloudWatch
+resource "aws_cloudwatch_log_group" "fargate" {
+  name              = "/ecs_scheduled_tasks/${var.basename}_fargate"
+  retention_in_days = 180
 }
 
-data "aws_iam_policy" "ecs_events_role_policy" {
-  arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceEventsRole"
+resource "aws_cloudwatch_event_rule" "fargate" {
+  name                = "${var.basename}_fargate"
+  description         = "These are the event rules for FargateBatch."
+  schedule_expression = var.cron
 }
 
-module "ecs_task_role" {
-  source     = "./modules/iam_role"
-  name       = "${var.basename}_ecs_task_role"
-  identifier = "ecs-tasks.amazonaws.com"
-  policy     = data.aws_iam_policy.ecs_task_role_policy.policy
-}
+resource "aws_cloudwatch_event_target" "fargate" {
+  target_id = "${var.basename}_fargate"
+  rule      = aws_cloudwatch_event_rule.fargate.name
+  role_arn  = var.ecs_event_role_arn
+  arn       = aws_ecs_cluster.fargate_cluster.arn
 
-data "aws_iam_policy" "ecs_task_role_policy" {
-  arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceEventsRole"
-}
+  ecs_target {
+    launch_type         = "FARGATE"
+    task_count          = 1
+    platform_version    = "1.3.0"
+    task_definition_arn = aws_ecs_task_definition.fargate.arn
 
-# 条件分岐で必要なときのみにしたい
-module "security_group" {
-  name        = var.basename
-  source      = "./modules/security_group"
-  vpc_id      = "22"
-  port        = "512"
-  cidr_blocks = ["0.0.0.0/0"]
-}
-
-# 条件分岐で必要なときのみにしたい
-resource "aws_vpc" "fargate_vpc" {
-  cidr_block = "10.0.0.0/16"
-  tags       = { Name = var.basename }
-}
-
-resource "aws_subnet" "fargate_subnet" {
-  vpc_id     = aws_vpc.fargate_vpc.id
-  cidr_block = "10.0.0.0/24"
-}
-
-module "fargate" {
-  basename           = var.basename
-  source             = "./modules/fargate"
-  cron               = "cron(*/2 * * * ? *)"
-  cpu                = "256"
-  memory             = "512"
-  region             = var.region
-  ecs_task_role_arn  = module.ecs_task_role.iam_role_arn
-  ecs_event_role_arn = module.ecs_event_role.iam_role_arn
-  security_groups    = [module.security_group.security_group_id]
-  subnets            = [aws_subnet.fargate_subnet.id]
-  container_definitions = jsonencode([
-    {
-      name      = var.basename
-      image     = "nginx:latest"
-      essential = true
-      portMappings = [
-        {
-          containerPort = "80"
-          protocol      = "tcp"
-        }
-      ]
+    network_configuration {
+      subnets          = var.subnets
+      security_groups  = var.security_groups
+      assign_public_ip = true
     }
-  ])
+  }
+}
+
+# ECS Resources
+resource "aws_ecs_cluster" "fargate_cluster" {
+  name = var.basename
+}
+
+resource "aws_ecs_task_definition" "fargate" {
+  family                   = "${var.basename}_fargate"
+  cpu                      = var.cpu
+  memory                   = var.memory
+  container_definitions    = var.container_definitions
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  task_role_arn            = var.ecs_task_role_arn
+  execution_role_arn       = var.ecs_task_role_arn
+}
+
+# S3
+resource "aws_s3_bucket" "log_bucket" {
+  bucket = "${var.basename}-logs-bucket"
+
+  lifecycle_rule {
+    enabled = true
+
+    expiration {
+      days = "180"
+    }
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "private" {
+  bucket                  = aws_s3_bucket.log_bucket.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
