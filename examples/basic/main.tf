@@ -1,13 +1,4 @@
 # 条件分岐で必要なときのみにしたい
-module "security_group" {
-  name        = var.basename
-  source      = "./modules/security_group"
-  vpc_id      = "22"
-  port        = "512"
-  cidr_blocks = ["0.0.0.0/0"]
-}
-
-# 条件分岐で必要なときのみにしたい
 resource "aws_vpc" "fargate_vpc" {
   cidr_block = "10.0.0.0/16"
   tags       = { Name = var.basename }

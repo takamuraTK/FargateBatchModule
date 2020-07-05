@@ -1,5 +1,5 @@
 resource "aws_security_group" "fargate" {
-    name = var.name
+    name = "${var.basename}_sg"
     vpc_id = var.vpc_id
 }
 
