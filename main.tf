@@ -13,7 +13,7 @@ resource "aws_cloudwatch_event_rule" "fargate" {
 resource "aws_cloudwatch_event_target" "fargate" {
   target_id = "${var.basename}_fargate"
   rule      = aws_cloudwatch_event_rule.fargate.name
-  role_arn  = var.ecs_event_role_arn
+  role_arn  = aws_iam_role.fargate_event.arn
   arn       = aws_ecs_cluster.fargate_cluster.arn
 
   ecs_target {
@@ -42,8 +42,8 @@ resource "aws_ecs_task_definition" "fargate" {
   container_definitions    = var.container_definitions
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  task_role_arn            = var.ecs_task_role_arn
-  execution_role_arn       = var.ecs_task_role_arn
+  task_role_arn            = aws_iam_role.fargate_task.arn
+  execution_role_arn       = aws_iam_role.fargate_task.arn
 }
 
 # S3

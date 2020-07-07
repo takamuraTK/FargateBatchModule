@@ -1,7 +1,7 @@
 # ECS event role
 resource "aws_iam_role" "fargate_event" {
   name               = var.basename
-  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+  assume_role_policy = data.aws_iam_policy_document.fargate_event.json
 }
 
 data "aws_iam_policy_document" "fargate_event" {
@@ -15,21 +15,21 @@ data "aws_iam_policy_document" "fargate_event" {
   }
 }
 
-resource "aws_iam_policy" "fargate_event" {
+data "aws_iam_policy" "fargate_event" {
   name   = "${var.basename}_fargate_event_policy"
   policy = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceEventsRole"
 }
 
 resource "aws_iam_role_policy_attachment" "fargate_event" {
   role       = aws_iam_role.fargate_event.name
-  policy_arn = aws_iam_policy.fargate_event.arn
+  policy_arn = data.aws_iam_policy.fargate_event.arn
 }
 
 
 # ECS task role
 resource "aws_iam_role" "fargate_task" {
   name               = "${var.basename}_task_role"
-  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+  assume_role_policy = data.aws_iam_policy_document.fargate_task.json
 }
 
 data "aws_iam_policy_document" "fargate_task" {
@@ -43,7 +43,7 @@ data "aws_iam_policy_document" "fargate_task" {
   }
 }
 
-resource "aws_iam_policy" "fargate_task" {
+data "aws_iam_policy" "fargate_task" {
   name   = "${var.basename}_task_policy"
   policy = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceEventsRole"
 }

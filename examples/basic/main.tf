@@ -5,9 +5,7 @@ module "fargate" {
   cpu                = "256"
   memory             = "512"
   region             = var.region
-  ecs_task_role_arn  = aws_iam_role.fargate_task.arn
-  ecs_event_role_arn = aws_iam_role.fargate_event.arn
-  security_groups    = [aws_security_group.fargate.id]
+  security_groups    = [module.vpc.security_group_id]
   subnets            = [module.vpc.subnet_id]
   container_definitions = jsonencode([
     {
@@ -26,7 +24,9 @@ module "fargate" {
 
 module "vpc" {
   source            = "git::https://github.com/takamuraTK/terraform-aws-vpc.git"
-  basename          = var.basename
+  basename          = "fargate_vpc"
   vpc_cidr_block    = "10.0.0.0/16"
   subnet_cidr_block = "10.0.0.0/24"
+  sg_port           = "80"
+  sg_cidr_blocks    = "0.0.0.0/0"
 }
