@@ -14,7 +14,7 @@ module "fargate" {
       essential = true
       portMappings = [
         {
-          containerPort = "80"
+          containerPort = 80
           protocol      = "tcp"
         }
       ]
@@ -28,5 +28,5 @@ module "vpc" {
   vpc_cidr_block    = "10.0.0.0/16"
   subnet_cidr_block = "10.0.0.0/24"
   sg_port           = "80"
-  sg_cidr_blocks    = "0.0.0.0/0"
+  sg_cidr_blocks    = ["0.0.0.0/0"]
 }
